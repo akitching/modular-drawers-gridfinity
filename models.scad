@@ -111,26 +111,26 @@ module __end_customizer_options__() { }
 
 /* Computed values */
 
-// Full housing exterior size
-housing_outer_width = base_unit_width + (Width_Units - 1)*extra_unit_width;
-housing_outer_height = base_unit_height + (Height_Units -1)*extra_unit_height;
-// Depth excluding handle
-housing_outer_depth = housing_wall_thickness + back_wall_thickness + base_unit_depth * Depth_Units + 2;
+// Full drawer interior size
+drawer_inner_width = base_unit_width*Width_Units + 2*grid_edge_tolerance;
+drawer_inner_height = base_unit_height*Height_Units;
+drawer_inner_depth = base_unit_depth*Depth_Units + 2*grid_edge_tolerance;
 
 // Full drawer exterior size
-drawer_outer_width = housing_outer_width - 2*housing_wall_thickness - 2*Drawer_Tolerance;
-drawer_outer_height = housing_outer_height - 2*housing_wall_thickness - 2*Drawer_Tolerance;
-drawer_outer_depth = housing_outer_depth - back_wall_thickness;
+drawer_outer_width = drawer_inner_width + 2*drawer_wall_thickness;
+drawer_outer_height = drawer_inner_height + h_base;
+drawer_outer_depth = drawer_inner_depth + 2*drawer_wall_thickness;
 
-// Full drawer interior size
-drawer_inner_width = drawer_outer_width - 2 * drawer_wall_thickness;
-drawer_inner_height = drawer_outer_height - 2 * drawer_wall_thickness;
-drawer_inner_depth = drawer_outer_depth - 2 * drawer_wall_thickness;
+// Full housing exterior size
+housing_outer_width = drawer_outer_width + 2*Drawer_Tolerance + 2*housing_wall_thickness;
+housing_outer_height = drawer_outer_height + 2*Drawer_Tolerance + 2*housing_wall_thickness;
+// Depth excluding handle
+housing_outer_depth = drawer_outer_depth + 2*Drawer_Tolerance + back_wall_thickness;
 
 // Full plate exterior size
-plate_outer_width = base_unit_width + (Width_Units - 1)*extra_unit_width;
-plate_outer_height = base_unit_height + (Height_Units -1)*extra_unit_height;
-plate_outer_depth = housing_wall_thickness + back_wall_thickness + base_unit_depth * Depth_Units + 2;
+plate_outer_width = housing_outer_width;
+plate_outer_height = base_unit_height + (Height_Units -1)*extra_unit_height; // TODO: Redefine
+plate_outer_depth = housing_outer_depth;
 
 
 module housing_back_opening(lip_increment) {
