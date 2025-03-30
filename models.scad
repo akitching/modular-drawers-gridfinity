@@ -61,7 +61,8 @@ Pull_Screw_Hole_Diameter = 3.0; // [1.0:0.1:15.0]
 Pull_Screw_Hole_Separation = 10.0; // [0.0:0.5:50.0]
 
 Include_Cutout_For_Label = true;
-Label_Width = 82; // [25.5,67.5,82,100]
+Label_Width_Left = 82; // [0: None, 25.5: Small, 67.5: Medium, 82: Large, 100: Very Large]
+Label_Width_Right = 82; // [0: None, 25.5: Small, 67.5: Medium, 82: Large, 100: Very Large]
 
 /* [Top or Bottom Plate Settings] */
 Plate_Model_Type = 1; // [0: Bottom Plate, 1: Top Plate]
@@ -706,21 +707,40 @@ module drawer_handle() {
     }
 }
 
-module drawer_label_inset() {
+module drawer_label_inset(width) {
   difference() {
     hull() {
       translate([label_radius, label_radius, 0]) cylinder (h = label_depth, r = label_radius);
       translate([label_radius, label_height -  label_radius, 0]) cylinder (h = label_depth, r = label_radius);
-      translate([Label_Width - label_radius, label_height - label_radius, 0]) cylinder (h = label_depth, r = label_radius);
-      translate([Label_Width - label_radius, label_radius, 0]) cylinder (h = label_depth, r = label_radius);
+      translate([width - label_radius, label_height - label_radius, 0]) cylinder (h = label_depth, r = label_radius);
+      translate([width - label_radius, label_radius, 0]) cylinder (h = label_depth, r = label_radius);
     }
   }
 }
 
 module drawer_label() {
+  union() {
+    if (Label_Width_Right > 0)
+    {
+      drawer_label_right();
+    }
+    if (Label_Width_Left > 0)
+    {
+      drawer_label_left();
+    }
+  }
+}
+
+module drawer_label_right() {
   translate([0,drawer_wall_thickness*2,(drawer_outer_height*0.5)-(label_height*0.5)])
   rotate([90,0,90])
-  drawer_label_inset();
+  drawer_label_inset(Label_Width_Right);
+}
+
+module drawer_label_left() {
+  translate([0,drawer_outer_width-Label_Width_Left-(drawer_wall_thickness*2),(drawer_outer_height*0.5)-(label_height*0.5)])
+  rotate([90,0,90])
+  drawer_label_inset(Label_Width_Left);
 }
 
 module drawer_pull_screw_holes(diameter=3.0, separation=10.0) {
