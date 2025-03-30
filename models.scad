@@ -60,6 +60,9 @@ Pull_Screw_Hole_Diameter = 3.0; // [1.0:0.1:15.0]
 // In millimeters. Set to 0 for a single hole instead of two. Applies when Pull Type is set to Screw Holes
 Pull_Screw_Hole_Separation = 10.0; // [0.0:0.5:50.0]
 
+Include_Cutout_For_Label = true;
+Label_Width = 82; // [25.5,67.5,82,100]
+
 /* [Top or Bottom Plate Settings] */
 Plate_Model_Type = 1; // [0: Bottom Plate, 1: Top Plate]
 
@@ -703,6 +706,23 @@ module drawer_handle() {
     }
 }
 
+module drawer_label_inset() {
+  difference() {
+    hull() {
+      translate([label_radius, label_radius, 0]) cylinder (h = label_depth, r = label_radius);
+      translate([label_radius, label_height -  label_radius, 0]) cylinder (h = label_depth, r = label_radius);
+      translate([Label_Width - label_radius, label_height - label_radius, 0]) cylinder (h = label_depth, r = label_radius);
+      translate([Label_Width - label_radius, label_radius, 0]) cylinder (h = label_depth, r = label_radius);
+    }
+  }
+}
+
+module drawer_label() {
+  translate([0,drawer_wall_thickness*2,(drawer_outer_height*0.5)-(label_height*0.5)])
+  rotate([90,0,90])
+  drawer_label_inset();
+}
+
 module drawer_pull_screw_holes(diameter=3.0, separation=10.0) {
     for(i = [-1:2:1]) {
         translate([0, drawer_outer_width / 2 + i * separation / 2, drawer_outer_height / 2])
@@ -733,6 +753,10 @@ module drawer() {
             }
             translate([0, 0, -base_height_reduction])
             drawer_gridfinity_baseplate_cut();
+            if (Include_Cutout_For_Label)
+            {
+              drawer_label();
+            }
         }
     }
 }

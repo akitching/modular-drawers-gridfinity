@@ -23,3 +23,9 @@ connector_support_tolerance = dovetail_size * 0.2;
 
 // Drawer handle base size
 drawer_handle_base_size = base_unit_height/2-2*housing_wall_thickness-drawer_wall_thickness;
+
+// Label
+label_height = 24.5;
+label_depth = 0.85;
+label_radius = 3.5;
+label_champher = 0.2;
