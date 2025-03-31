@@ -122,7 +122,7 @@ drawer_inner_depth = base_unit_depth*Depth_Units + 2*grid_edge_tolerance;
 
 // Full drawer exterior size
 drawer_outer_width = drawer_inner_width + 2*drawer_wall_thickness;
-drawer_outer_height = drawer_inner_height + h_base;
+drawer_outer_height = drawer_inner_height + h_base + bp_h_bot;
 drawer_outer_depth = drawer_inner_depth + 2*drawer_wall_thickness;
 
 // Full housing exterior size
