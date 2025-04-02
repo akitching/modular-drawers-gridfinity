@@ -3,30 +3,58 @@ module billy_drawer_mounts(height_in_units=1, lips_on_level=[0], stop_block=fals
   alcove_width = 362;
   depth = 258;
 
+  drawer_width = 362-21;
+  drawer_tolerance = 0.5;
+  side_width = (alcove_width - drawer_width) / 2 - drawer_tolerance;
+
+  // Rails
   billy_rail(height_in_units, lips_on_level);
 
   translate([0,-alcove_width,0])
   mirror(v = [0,1,0]) 
   billy_rail(height_in_units, lips_on_level);
 
+  // Supports
+  for (i = lips_on_level) {
+    if (i < height_in_units) {
+      
+      offset = [0,0,32*i];
+      translate([-50,0,0] + offset)
+      lateral_support();
+      translate([-100,0,0] + offset)
+      lateral_support();
+    }
+  }
+
   module billy_rail(units, lips_on_level) {
     union() {
       side_wall(units);
-      lips(lips_on_level);
+      lips(units, lips_on_level);
     }
   }
 
   module side_wall(units) {
     height = units*32;
     length = alcove_depth;
-    width = 21/2 - 0.5; // (non-drawer space / 2) - tolerance;
+    width = side_width; // 21/2 - 0.5; // (non-drawer space / 2) - tolerance;
     difference() {
       cube([length, width, height], center=false);
       mounting_holes_for_rail(units);
     }
   }
 
-  module lips(levels) {
+  module lateral_support() {
+    rotate([0,0,-90])
+    union() {
+      cube([alcove_width - side_width*2, 25, 3]);
+      support_connector();
+    }
+  }
+
+  module support_connector() {
+  }
+
+  module lips(units, levels) {
     width = 16;
     thickness = 3;
     front_offset = 25;
@@ -34,8 +62,9 @@ module billy_drawer_mounts(height_in_units=1, lips_on_level=[0], stop_block=fals
     depth = alcove_depth - front_offset - rear_offset;
 
     for (level = levels) {
-      translate([front_offset,0,32*level])
-      lip(depth, width, thickness);
+      if (level < units)
+        translate([front_offset,0,32*level])
+          lip(depth, width, thickness);
     }
   }
 
@@ -47,7 +76,7 @@ module billy_drawer_mounts(height_in_units=1, lips_on_level=[0], stop_block=fals
     setback_from_front_edge = 36.5;
     first_layer_height = 11.5;
     vertical_spacing = 32;
-    horizontal_spacing = 194;
+    horizontal_spacing = 194 - 1.5;
 
     for (level = [0:units-1]) {
       height = first_layer_height + (level*vertical_spacing);
@@ -87,4 +116,10 @@ billy_drawer_mounts(1);
 billy_drawer_mounts(1);
 
 //translate(v = [0,0,0])
-billy_drawer_mounts(height_in_units = 6, lips_on_level = [0,2,4], stop_block = false);
+billy_drawer_mounts(height_in_units = 5, lips_on_level = [0,2,4,6,8], stop_block = false);
+
+*difference() {
+  cube([258,10,0.6]);
+  translate([36.5, 5, 0]) cylinder(h = 5, r = 2.5);
+  translate([36.5 + 194 - 1.5, 5, 0]) cylinder(h = 5, r = 2.5);
+}
