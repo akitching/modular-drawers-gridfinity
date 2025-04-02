@@ -2,7 +2,7 @@
 base_unit_width = 42;
 base_unit_height = 6*7; // 66; // 2 + (6*7)+ceil(h_base+bp_h_bot)+(2*housing_wall_thickness);
 base_unit_depth = 42;
-grid_edge_tolerance = 2;
+grid_edge_tolerance = 0;
 
 // Calculated width/height to add for each unit beyond the first
 extra_unit_width = base_unit_width;

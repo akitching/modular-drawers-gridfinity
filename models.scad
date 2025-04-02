@@ -723,7 +723,7 @@ module drawer_label() {
 
 module drawer_label_right() {
   translate([
-    -drawer_wall_thickness,
+    -drawer_wall_thickness*0.5,
     drawer_wall_thickness*2,
     (drawer_outer_height*0.5)-(label_height*0.5)-(label_mount_width*4)
   ])
@@ -733,7 +733,7 @@ module drawer_label_right() {
 
 module drawer_label_left() {
   translate([
-    -drawer_wall_thickness,
+    -drawer_wall_thickness*0.5,
     drawer_outer_width-Label_Width_Left-(drawer_wall_thickness*2)-(label_mount_width*6),
     (drawer_outer_height*0.5)-(label_height*0.5)-(label_mount_width*4)
   ])
@@ -769,9 +769,9 @@ module drawer() {
                 drawer_box(base_height_reduction);
                 drawer_handle();
             }
+            translate([0, 0, -base_height_reduction])
+            drawer_gridfinity_baseplate_cut();
         }
-        translate([0, 0, -base_height_reduction])
-        drawer_gridfinity_baseplate_cut();
         if (Include_Cutout_For_Label)
         {
           drawer_label();
