@@ -29,3 +29,8 @@ label_height = 24.5;
 label_depth = 0.85;
 label_radius = 3.5;
 label_champher = 0.2;
+
+label_mount_width = 2;
+label_mount_overlap = 0.5;
+label_cutout_lip = 2;
+label_depth_tolerance = 0.1;

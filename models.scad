@@ -15,6 +15,7 @@ include <modules/constants.scad>
 use <modules/components.scad>
 use <modules/gridfinity.scad>
 use <modules/shapes.scad>
+use <modules/label.scad>
 
 /* [Rendering] */
 // Select Print Orientation to render models for export. You may wish to enable only the housing or drawer using the options after this one to export them separately.
@@ -707,17 +708,6 @@ module drawer_handle() {
     }
 }
 
-module drawer_label_inset(width) {
-  difference() {
-    hull() {
-      translate([label_radius, label_radius, 0]) cylinder (h = label_depth, r = label_radius);
-      translate([label_radius, label_height -  label_radius, 0]) cylinder (h = label_depth, r = label_radius);
-      translate([width - label_radius, label_height - label_radius, 0]) cylinder (h = label_depth, r = label_radius);
-      translate([width - label_radius, label_radius, 0]) cylinder (h = label_depth, r = label_radius);
-    }
-  }
-}
-
 module drawer_label() {
   union() {
     if (Label_Width_Right > 0)
@@ -732,15 +722,23 @@ module drawer_label() {
 }
 
 module drawer_label_right() {
-  translate([0,drawer_wall_thickness*2,(drawer_outer_height*0.5)-(label_height*0.5)])
+  translate([
+    -drawer_wall_thickness,
+    drawer_wall_thickness*2,
+    (drawer_outer_height*0.5)-(label_height*0.5)-(label_mount_width*4)
+  ])
   rotate([90,0,90])
-  drawer_label_inset(Label_Width_Right);
+  label_mount(Label_Width_Right);
 }
 
 module drawer_label_left() {
-  translate([0,drawer_outer_width-Label_Width_Left-(drawer_wall_thickness*2),(drawer_outer_height*0.5)-(label_height*0.5)])
+  translate([
+    -drawer_wall_thickness,
+    drawer_outer_width-Label_Width_Left-(drawer_wall_thickness*2)-(label_mount_width*6),
+    (drawer_outer_height*0.5)-(label_height*0.5)-(label_mount_width*4)
+  ])
   rotate([90,0,90])
-  drawer_label_inset(Label_Width_Left);
+  label_mount(Label_Width_Left);
 }
 
 module drawer_pull_screw_holes(diameter=3.0, separation=10.0) {
@@ -771,12 +769,12 @@ module drawer() {
                 drawer_box(base_height_reduction);
                 drawer_handle();
             }
-            translate([0, 0, -base_height_reduction])
-            drawer_gridfinity_baseplate_cut();
-            if (Include_Cutout_For_Label)
-            {
-              drawer_label();
-            }
+        }
+        translate([0, 0, -base_height_reduction])
+        drawer_gridfinity_baseplate_cut();
+        if (Include_Cutout_For_Label)
+        {
+          drawer_label();
         }
     }
 }
