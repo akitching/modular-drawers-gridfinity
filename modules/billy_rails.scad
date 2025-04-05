@@ -1,4 +1,6 @@
 module billy_drawer_mounts(height_in_units=1, lips_on_level=[0], stop_block=false) {
+  debug = 0;
+
   alcove_depth = 258;
   alcove_width = 362;
   depth = 258;
@@ -44,14 +46,77 @@ module billy_drawer_mounts(height_in_units=1, lips_on_level=[0], stop_block=fals
   }
 
   module lateral_support() {
+    support_length = alcove_width - side_width*2;
     rotate([0,0,-90])
     union() {
-      cube([alcove_width - side_width*2, 25, 3]);
+      cube([support_length, 25, 3]);
+      mirror([0,1,0]) rotate([0,0,90])
       support_connector();
+      translate([support_length,0,0])
+      rotate([0,0,-90])
+        support_connector();
     }
   }
 
   module support_connector() {
+    head_width = 12;
+    base_width = 7;
+    horizontal_length = 5;
+    angle_in_degrees = 45;
+    vertical_thickness = 3;
+
+    base_left = [0, 0, 0];
+    base_right = base_left -[base_width, 0, 0];
+    head_left = base_left + [(head_width - base_width)/2, horizontal_length, 3];
+    head_right = head_left - [head_width, 0, 0];
+
+    vertical_vector = [0, 0, 3];
+
+    overlap_vector = [0,-5,0];
+
+    polyhedron(
+      points = [
+        base_left,
+        head_left,
+        head_right,
+        base_right,
+        base_left + vertical_vector,
+        head_left + vertical_vector,
+        head_right + vertical_vector,
+        base_right + vertical_vector,
+
+        base_left + overlap_vector,
+        base_right + overlap_vector,
+        base_left + overlap_vector + vertical_vector,
+        base_right + overlap_vector + vertical_vector,
+      ],
+      faces = [
+        [0,1,2,3], // Bottom
+        [0,3,7,4], // Base
+        [1,5,6,2], // Head
+        [1,0,4,5], // Right
+        [3,2,6,7], // Left
+        [6,5,4,7], // Top
+      ],
+      convexity = 1);
+
+    if (debug == 1) {
+      text_offset = [0, 0, 0];
+      translate(base_left + text_offset) text(text = "0", size = 1);
+      translate(head_left + text_offset) text(text = "1", size = 1);
+      translate(head_right+ text_offset) text(text = "2", size = 1);
+      translate(base_right+ text_offset) text(text = "3", size = 1);
+
+      translate(base_left + text_offset + vertical_vector) text(text = "4", size = 1);
+      translate(head_left + text_offset + vertical_vector) text(text = "5", size = 1);
+      translate(head_right+ text_offset + vertical_vector) text(text = "6", size = 1);
+      translate(base_right+ text_offset + vertical_vector) text(text = "7", size = 1);
+
+      translate(base_left + text_offset + overlap_vector) text(text = "8", size = 1);
+      translate(base_right + text_offset + overlap_vector) text(text = "9", size = 1);
+      translate(base_left + text_offset + overlap_vector + vertical_vector) text(text = "10", size = 1);
+      translate(base_right + text_offset + overlap_vector + vertical_vector) text(text = "11", size = 1);
+    }
   }
 
   module lips(units, levels) {
@@ -107,13 +172,13 @@ module billy_drawer_mounts(height_in_units=1, lips_on_level=[0], stop_block=fals
 }
 
 *translate([300,0,64])
-billy_drawer_mounts(2);
+  billy_drawer_mounts(2);
 
 *translate([300,0,0])
-billy_drawer_mounts(1);
+  billy_drawer_mounts(1);
 
 *translate([300,0,32])
-billy_drawer_mounts(1);
+  billy_drawer_mounts(1);
 
 //translate(v = [0,0,0])
 billy_drawer_mounts(height_in_units = 5, lips_on_level = [0,2,4,6,8], stop_block = false);
