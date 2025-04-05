@@ -19,9 +19,10 @@ module billy_drawer_mounts(height_in_units=1, lips_on_level=[0], stop_block=fals
   support_angle_in_degrees = 30;
   support_vertical_thickness = 3;
 
-  translate([0,-alcove_width,0])
+  translate([0,-alcove_width + side_width * 2,0])
+  //translate([0,-50,0])
   mirror(v = [0,1,0]) 
-  billy_rail(height_in_units, lips_on_level);
+  billy_rail(height_in_units, lips_on_level, mirrored = true);
 
   // Supports
   for (i = lips_on_level) {
@@ -35,14 +36,14 @@ module billy_drawer_mounts(height_in_units=1, lips_on_level=[0], stop_block=fals
     }
   }
 
-  module billy_rail(units, lips_on_level) {
+  module billy_rail(units, lips_on_level, mirrored = false) {
     union() {
-      side_wall(units, lips_on_level);
+      side_wall(units, lips_on_level, mirrored);
       lips(units, lips_on_level);
     }
   }
 
-  module side_wall(units, lips_on_level) {
+  module side_wall(units, lips_on_level, mirrored = false) {
     height = units*32;
     length = alcove_depth;
     width = side_width; // 21/2 - 0.5; // (non-drawer space / 2) - tolerance;
@@ -50,6 +51,20 @@ module billy_drawer_mounts(height_in_units=1, lips_on_level=[0], stop_block=fals
       cube([length, width, height], center=false);
       mounting_holes_for_rail(units);
       support_slots(lips_on_level);
+
+      if (mirrored != true) {
+        
+        rotate([90,0,0])
+          translate([length/2,  height/2, -1])
+          linear_extrude(height = 2, center = false, convexity = 10, twist = 0, slices = 20, scale = 1.0) 
+          text("<== Front", halign = "center");
+      } else {
+
+        rotate([90,0,0])
+          translate([length/2,  height/2, -1])
+          linear_extrude(height = 2, center = false, convexity = 10, twist = 0, slices = 20, scale = 1.0) 
+          mirror([1,0,0]) text("Front ==>", halign = "center");
+      }
     }
   }
 
@@ -238,7 +253,7 @@ module billy_drawer_mounts(height_in_units=1, lips_on_level=[0], stop_block=fals
   billy_drawer_mounts(1);
 
 //translate(v = [0,0,0])
-billy_drawer_mounts(height_in_units = 5, lips_on_level = [0,2,4,6,8], stop_block = false);
+*billy_drawer_mounts(height_in_units = 5, lips_on_level = [0,2,4,6,8], stop_block = false);
 
 translate(v = [0,0,-64])
 billy_drawer_mounts(height_in_units = 1, lips_on_level = [0,1,2,4,6,8], stop_block = false);
