@@ -1,6 +1,6 @@
-module billy_drawer_mounts(height_in_units=1, lips_on_level=[0], stop_block=false) {
-  debug = 0;
+include <round-anything/polyround.scad>
 
+module billy_drawer_mounts(height_in_units=1, lips_on_level=[0], stop_block=false) {
   alcove_depth = 258;
   alcove_width = 362;
   depth = 258;
@@ -50,11 +50,14 @@ module billy_drawer_mounts(height_in_units=1, lips_on_level=[0], stop_block=fals
     rotate([0,0,-90])
     union() {
       cube([support_length, 25, 3]);
-      mirror([0,1,0]) rotate([0,0,90])
-      support_connector();
+
+      mirror([0,1,0])
+        rotate([0,0,90])
+          support_connector();
+
       translate([support_length,0,0])
-      rotate([0,0,-90])
-        support_connector();
+        rotate([0,0,-90])
+          support_connector();
     }
   }
 
@@ -65,57 +68,35 @@ module billy_drawer_mounts(height_in_units=1, lips_on_level=[0], stop_block=fals
     angle_in_degrees = 45;
     vertical_thickness = 3;
 
-    base_left = [0, 0, 0];
+    horizontal_delta = head_width - base_width;
+
+    base_left = [-horizontal_delta/2, 0, 0];
+    head_left = [0, horizontal_length, 3];
     base_right = base_left -[base_width, 0, 0];
-    head_left = base_left + [(head_width - base_width)/2, horizontal_length, 3];
     head_right = head_left - [head_width, 0, 0];
 
     vertical_vector = [0, 0, 3];
 
     overlap_vector = [0,-5,0];
 
-    polyhedron(
-      points = [
-        base_left,
-        head_left,
-        head_right,
-        base_right,
-        base_left + vertical_vector,
-        head_left + vertical_vector,
-        head_right + vertical_vector,
-        base_right + vertical_vector,
+    mirror([1,0,0])
+    translate([head_width/2,0,0])
+    difference() {
+      linear_extrude(height = vertical_thickness*3, center = false, convexity = 10, twist = 0, slices = 20, scale = 1.0) 
+        polygon(polyRound([
+          [0, horizontal_length, 0.5],          // head left
+          [head_width, horizontal_length, 0.5], // head right 
+          [head_width-base_width/2, 0, 0],      // base right
+          [base_width/2, 0, 0],                 // base left
+        ]), 10);
 
-        base_left + overlap_vector,
-        base_right + overlap_vector,
-        base_left + overlap_vector + vertical_vector,
-        base_right + overlap_vector + vertical_vector,
-      ],
-      faces = [
-        [0,1,2,3], // Bottom
-        [0,3,7,4], // Base
-        [1,5,6,2], // Head
-        [1,0,4,5], // Right
-        [3,2,6,7], // Left
-        [6,5,4,7], // Top
-      ],
-      convexity = 1);
+      rotate([215,0,0])
+        translate([0,-10,0])
+          cube([head_width,10,10]);
 
-    if (debug == 1) {
-      text_offset = [0, 0, 0];
-      translate(base_left + text_offset) text(text = "0", size = 1);
-      translate(head_left + text_offset) text(text = "1", size = 1);
-      translate(head_right+ text_offset) text(text = "2", size = 1);
-      translate(base_right+ text_offset) text(text = "3", size = 1);
-
-      translate(base_left + text_offset + vertical_vector) text(text = "4", size = 1);
-      translate(head_left + text_offset + vertical_vector) text(text = "5", size = 1);
-      translate(head_right+ text_offset + vertical_vector) text(text = "6", size = 1);
-      translate(base_right+ text_offset + vertical_vector) text(text = "7", size = 1);
-
-      translate(base_left + text_offset + overlap_vector) text(text = "8", size = 1);
-      translate(base_right + text_offset + overlap_vector) text(text = "9", size = 1);
-      translate(base_left + text_offset + overlap_vector + vertical_vector) text(text = "10", size = 1);
-      translate(base_right + text_offset + overlap_vector + vertical_vector) text(text = "11", size = 1);
+      translate([0,0,3]) 
+        rotate([30,0,0])
+          cube([head_width,10,10]);
     }
   }
 

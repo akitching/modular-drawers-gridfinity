@@ -4,3 +4,6 @@
 [submodule "gridfinity-rebuilt-openscad"]
 	path = third_party/gridfinity-rebuilt-openscad
 	url = https://github.com/kennetek/gridfinity-rebuilt-openscad
+[submodule "modules/round-anything"]
+	path = modules/round-anything
+	url = git@github.com:Irev-Dev/Round-Anything.git
