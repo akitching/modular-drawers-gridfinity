@@ -12,6 +12,13 @@ module billy_drawer_mounts(height_in_units=1, lips_on_level=[0], stop_block=fals
   // Rails
   billy_rail(height_in_units, lips_on_level);
 
+  // Supports
+  support_head_width = 12;
+  support_base_width = 7;
+  support_horizontal_length = 5;
+  support_angle_in_degrees = 30;
+  support_vertical_thickness = 3;
+
   translate([0,-alcove_width,0])
   mirror(v = [0,1,0]) 
   billy_rail(height_in_units, lips_on_level);
@@ -30,42 +37,85 @@ module billy_drawer_mounts(height_in_units=1, lips_on_level=[0], stop_block=fals
 
   module billy_rail(units, lips_on_level) {
     union() {
-      side_wall(units);
+      side_wall(units, lips_on_level);
       lips(units, lips_on_level);
     }
   }
 
-  module side_wall(units) {
+  module side_wall(units, lips_on_level) {
     height = units*32;
     length = alcove_depth;
     width = side_width; // 21/2 - 0.5; // (non-drawer space / 2) - tolerance;
     difference() {
       cube([length, width, height], center=false);
       mounting_holes_for_rail(units);
+      support_slots(lips_on_level);
     }
+  }
+
+  module support_slots(levels) {
+    for (level = levels) {
+      translate([0, 0, level*32])
+        translate([25/2, 0, 0])
+          support_connector_slot_negative(0.5);
+
+      translate([0, 0, level*32])
+        translate([depth - 25/2, 0, 0])
+          support_connector_slot_negative(0.5);
+    }
+  }
+
+  module support_connector_slot_negative(units = 1) {
+    union() {
+      difference() {
+        linear_extrude(height = units*32, center = false, convexity = 10, twist = 0, slices = 20, scale = 1.0) 
+          support_connector_shadow(0.2);
+          // Cut off bottom
+          support_lower_cutoff();
+      }
+      // Add entry cavity
+      translate([0,-1,units*32-support_connector_entry_cavity_height])
+        support_connector_entry_cavity();
+    }
+  }
+
+  support_connector_entry_cavity_height = 7;
+  module support_connector_entry_cavity() {
+    width = support_head_width + 0.1;
+    translate([-width/2,0,0])
+      linear_extrude(height = support_connector_entry_cavity_height, center = false, convexity = 10, twist = 0, slices = 20, scale = 1.0) 
+        polygon(polyRound([
+          [0,0,0],
+          [0, support_horizontal_length + 1.1, 1],
+          [width, support_horizontal_length + 1.1, 1],
+          [width, 0, 0],
+        ], 10));
   }
 
   module lateral_support() {
     support_length = alcove_width - side_width*2;
+
     rotate([0,0,-90])
-    union() {
-      cube([support_length, 25, 3]);
+      union() {
+        cube([support_length, 25, 3]);
 
-      mirror([0,1,0])
-        rotate([0,0,90])
-          support_connector();
+        translate([0, 25/2, 0])
+          mirror([0,1,0])
+            rotate([0,0,90])
+              support_connector();
 
-      translate([support_length,0,0])
-        rotate([0,0,-90])
-          support_connector();
-    }
+        translate([0, 25/2, 0])
+          translate([support_length,0,0])
+            rotate([0,0,-90])
+              support_connector();
+      }
   }
 
   module support_connector() {
     head_width = 12;
     base_width = 7;
     horizontal_length = 5;
-    angle_in_degrees = 45;
+    angle_in_degrees = 30;
     vertical_thickness = 3;
 
     horizontal_delta = head_width - base_width;
@@ -77,28 +127,54 @@ module billy_drawer_mounts(height_in_units=1, lips_on_level=[0], stop_block=fals
 
     vertical_vector = [0, 0, 3];
 
-    overlap_vector = [0,-5,0];
+    overlap_vector = [0,-5];
 
-    mirror([1,0,0])
-    translate([head_width/2,0,0])
+    //mirror([1,0,0])
+    //translate([head_width/2,0,0])
     difference() {
       linear_extrude(height = vertical_thickness*3, center = false, convexity = 10, twist = 0, slices = 20, scale = 1.0) 
-        polygon(polyRound([
-          [0, horizontal_length, 0.5],          // head left
-          [head_width, horizontal_length, 0.5], // head right 
-          [head_width-base_width/2, 0, 0],      // base right
-          [base_width/2, 0, 0],                 // base left
-        ]), 10);
+        support_connector_shadow(0);
 
-      rotate([215,0,0])
-        translate([0,-10,0])
-          cube([head_width,10,10]);
-
-      translate([0,0,3]) 
-        rotate([30,0,0])
-          cube([head_width,10,10]);
+      support_lower_cutoff();
+      support_upper_cutoff();
     }
   }
+
+  module support_lower_cutoff() {
+    translate([-support_head_width/2,0,0])
+      rotate([215,0,0])
+        translate([-support_head_width/2,-10,0])
+          cube([support_head_width*2,10,10]);
+  }
+
+  module support_upper_cutoff() {
+    translate([-support_head_width/2,0,0])
+      translate([0,0,3]) 
+        rotate([30,0,0])
+          cube([support_head_width,10,10]);
+    translate([-support_head_width/2,0,0])
+      translate([0,0,3]) 
+        rotate([90,0,0])
+          cube([support_head_width, 10, 10]);
+  }
+
+  module support_connector_shadow(padding = 0) {
+    translate([-support_head_width/2,0,0])
+      polygon(polyRound(
+        padding > 0
+          ? offsetPolygonPoints(support_connector_points(padding), padding)
+          : support_connector_points(),
+      10));
+  }
+
+  function support_connector_points(radius_modifier = 0) = [
+    [support_base_width/2, 0, 0],                         // base left
+    [0, support_horizontal_length, 0.5 + radius_modifier],                  // head left
+    [support_head_width, support_horizontal_length, 0.5 + radius_modifier], // head right 
+    [support_head_width - support_base_width/2, 0, 0],    // base right
+    [support_head_width - support_base_width/2, -5, 0],   // inner right
+    [support_base_width/2, -5, 0],                        // inner left
+  ];
 
   module lips(units, levels) {
     width = 16;
@@ -163,6 +239,9 @@ module billy_drawer_mounts(height_in_units=1, lips_on_level=[0], stop_block=fals
 
 //translate(v = [0,0,0])
 billy_drawer_mounts(height_in_units = 5, lips_on_level = [0,2,4,6,8], stop_block = false);
+
+translate(v = [0,0,-64])
+billy_drawer_mounts(height_in_units = 1, lips_on_level = [0,1,2,4,6,8], stop_block = false);
 
 *difference() {
   cube([258,10,0.6]);
