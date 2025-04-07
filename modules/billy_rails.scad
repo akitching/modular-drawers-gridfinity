@@ -57,13 +57,14 @@ module billy_drawer_mounts(height_in_units=1, lips_on_level=[0], stop_block=fals
         rotate([90,0,0])
           translate([length/2,  height/2, -1])
           linear_extrude(height = 2, center = false, convexity = 10, twist = 0, slices = 20, scale = 1.0) 
-          text("<== Front", halign = "center");
+          text("R                         Right                         F", halign = "center");
       } else {
 
         rotate([90,0,0])
           translate([length/2,  height/2, -1])
           linear_extrude(height = 2, center = false, convexity = 10, twist = 0, slices = 20, scale = 1.0) 
-          mirror([1,0,0]) text("Front ==>", halign = "center");
+          //mirror([1,0,0]) text("Rear ==>", halign = "center");
+          mirror([1,0,0]) text("F                         Left                         R", halign = "center");
       }
     }
   }
@@ -108,7 +109,7 @@ module billy_drawer_mounts(height_in_units=1, lips_on_level=[0], stop_block=fals
   }
 
   module lateral_support() {
-    support_length = alcove_width - side_width*2;
+    support_length = alcove_width - side_width*2 + 0.5;
 
     rotate([0,0,-90])
       union() {
@@ -253,9 +254,9 @@ module billy_drawer_mounts(height_in_units=1, lips_on_level=[0], stop_block=fals
   billy_drawer_mounts(1);
 
 //translate(v = [0,0,0])
-*billy_drawer_mounts(height_in_units = 5, lips_on_level = [0,2,4,6,8], stop_block = false);
+billy_drawer_mounts(height_in_units = 5, lips_on_level = [0,2,4,6,8], stop_block = false);
 
-translate(v = [0,0,-64])
+*translate(v = [0,0,-64])
 billy_drawer_mounts(height_in_units = 1, lips_on_level = [0,1,2,4,6,8], stop_block = false);
 
 *difference() {
